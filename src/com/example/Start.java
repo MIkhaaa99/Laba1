@@ -69,8 +69,8 @@ public class Start {
 
         String str = "";
         while((str = bufferedReader.readLine()) != null) {
-
             bufferedWriter.write(encryptToCaesarCode(str, "вак", 1));
+            bufferedWriter.write('\n');
         }
         bufferedWriter.close();
 
