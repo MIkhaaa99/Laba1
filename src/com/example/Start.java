@@ -52,17 +52,16 @@ public class Start {
 
     public static String zadanie2(String message, String qword) {
         String str = "";
-        while(str.length()<26) {
+        while(str.length()<message.length()) {
             str = str + qword;
         }
-        str = str.substring(0,26);
+        str = str.substring(0,message.length());
         System.out.println("Alphabet cipher:  " + str);
         String result = "";
         for(int i=0; i<message.length(); i++) {
             int position1 = ALPH.indexOf(message.charAt(i));
-            char symbolAlph = str.charAt(position1);
-            int position2 = ALPH.indexOf(symbolAlph);
-            result = result + ALPH.charAt((position1 + position2 + 1)%26);
+            int position2 = ALPH.indexOf(str.charAt(i));
+            result = result + ALPH.charAt((position1 + position2 + 1)%ALPH.length());
         }
         return result;
     }
@@ -144,5 +143,7 @@ public class Start {
         System.out.println(mapCountOfSymbol);
         System.out.println("Cуммарное количество букв в тексте: " + countOfAllSymbols);
         System.out.println(mapReplacementLetter);
+
+        System.out.println(zadanie2("здарова", "ав"));
     }
 }
