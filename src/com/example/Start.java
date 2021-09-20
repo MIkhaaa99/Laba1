@@ -39,7 +39,7 @@ public class Start {
         //Формируем результат
         String result = "";
         for(int i=0; i<message.length(); i++) {
-            if(List.of(".", ",", "!", "?", "—", "«", "»"," ").contains(String.valueOf(message.charAt(i)))) {
+            if(ALPH.indexOf(message.charAt(i))==-1) {
                 result = result + message.charAt(i);
             }
             else {
@@ -68,7 +68,7 @@ public class Start {
 
     public static void fillMapOfCountSymbols(String message) {
         for(int i=0; i<message.length(); i++) {
-            if(!List.of(".", ",", "!", "?", "—", "«", "»", " ").contains(String.valueOf(message.charAt(i)))) {
+            if(ALPH.indexOf(message.charAt(i))!=-1) {
                 String symbol = String.valueOf(message.charAt(i));
                 mapCountOfSymbol.put(symbol, mapCountOfSymbol.get(symbol)+1);
                 countOfAllSymbols++;
@@ -95,7 +95,7 @@ public class Start {
     public static String decodeByFrequencyAnalysis(String message) {
         String result = "";
         for(int i=0; i<message.length(); i++) {
-            if(List.of(".", ",", "!", "?", "—", "«", "»"," ").contains(String.valueOf(message.charAt(i)))) {
+            if(ALPH.indexOf(message.charAt(i))==-1) {
                 result = result + message.charAt(i);
             }
             else {
@@ -104,7 +104,6 @@ public class Start {
         }
         return result;
     }
-
 
     public static void main(String[] args) throws IOException {
         FileReader fileReader1 = new FileReader("C:\\Users\\ms199\\Desktop\\JavaProject\\StartEncryption\\resources\\Chapter10.txt");
