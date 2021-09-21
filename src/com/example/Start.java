@@ -66,7 +66,7 @@ public class Start {
         return result;
     }
 
-    public static void fillMapOfCountSymbols(String message) {
+    public static String decodeByFrequencyAnalysis(String message) {
         for(int i=0; i<message.length(); i++) {
             if(ALPH.indexOf(message.charAt(i))!=-1) {
                 String symbol = String.valueOf(message.charAt(i));
@@ -74,9 +74,7 @@ public class Start {
                 countOfAllSymbols++;
             }
         }
-    }
 
-    public static void fillMapOfReplacementSymbols() {
         for(Map.Entry<String, Integer> entryOfMapCountOfSymbol : mapCountOfSymbol.entrySet()) {
             double minDifference = 100.0;
             String key = "";
@@ -90,9 +88,7 @@ public class Start {
             }
             mapReplacementLetter.put(entryOfMapCountOfSymbol.getKey(), key);
         }
-    }
 
-    public static String decodeByFrequencyAnalysis(String message) {
         String result = "";
         for(int i=0; i<message.length(); i++) {
             if(ALPH.indexOf(message.charAt(i))==-1) {
@@ -106,43 +102,35 @@ public class Start {
     }
 
     public static void main(String[] args) throws IOException {
-        FileReader fileReader1 = new FileReader("C:\\Users\\ms199\\Desktop\\JavaProject\\StartEncryption\\resources\\Chapter10.txt");
-        BufferedReader bufferedReader1 = new BufferedReader(fileReader1);
+        FileInputStream fileInputStream1 = new FileInputStream("resources/Chapter10.txt");
+        BufferedInputStream bufferedInputStream1 = new BufferedInputStream(fileInputStream1);
 
-        FileWriter fileWriter1 = new FileWriter("C:\\Users\\ms199\\Desktop\\JavaProject\\StartEncryption\\resources\\Chapter10Encode.txt");
-        BufferedWriter bufferedWriter1 = new BufferedWriter(fileWriter1);
+        byte[] bytesArrayFromChapter10 = bufferedInputStream1.readAllBytes();
+        String stringFromChapter10 = new String(bytesArrayFromChapter10, "UTF-8");
+        String encode = encryptToCaesarCode(stringFromChapter10, "вак", 1);
 
-        String str = "";
-        while((str = bufferedReader1.readLine()) != null) {
-            bufferedWriter1.write(encryptToCaesarCode(str, "вак", 1));
-            bufferedWriter1.write('\n');
-        }
-        bufferedWriter1.close();
-        bufferedReader1.close();
+        FileOutputStream fileOutputStream1 = new FileOutputStream("resources/Chapter10Encode.txt");
+        BufferedOutputStream bufferedOutputStream1 = new BufferedOutputStream(fileOutputStream1);
+        bufferedOutputStream1.write(encode.getBytes());
 
-        FileReader fileReader2 = new FileReader("C:\\Users\\ms199\\Desktop\\JavaProject\\StartEncryption\\resources\\Chapter10Encode.txt");
-        BufferedReader bufferedReader2 = new BufferedReader(fileReader2);
-        FileReader fileReader3 = new FileReader("C:\\Users\\ms199\\Desktop\\JavaProject\\StartEncryption\\resources\\Chapter10Encode.txt");
-        BufferedReader bufferedReader3 = new BufferedReader(fileReader3);
+        fileInputStream1.close();
+        fileOutputStream1.close();
 
-        FileWriter fileWriter2 = new FileWriter("C:\\Users\\ms199\\Desktop\\JavaProject\\StartEncryption\\resources\\Chapter10Decode.txt");
-        BufferedWriter bufferedWriter2 = new BufferedWriter(fileWriter2);
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        String strR = "";
-        while((strR = bufferedReader2.readLine()) != null) {
-            fillMapOfCountSymbols(strR);
-        }
-        fillMapOfReplacementSymbols();
-        while((strR = bufferedReader3.readLine()) != null) {
-            bufferedWriter2.write(decodeByFrequencyAnalysis(strR));
-            bufferedWriter2.write('\n');
-        }
-        bufferedWriter2.close();
-        bufferedReader2.close();
-        System.out.println(mapCountOfSymbol);
-        System.out.println("Cуммарное количество букв в тексте: " + countOfAllSymbols);
-        System.out.println(mapReplacementLetter);
+        FileInputStream fileInputStream2 = new FileInputStream("resources/Chapter10Encode.txt");
+        BufferedInputStream bufferedInputStream2 = new BufferedInputStream(fileInputStream2);
 
-        System.out.println(zadanie2("здарова", "ав"));
+        byte[] bytesArrayFromChapter10Encode = bufferedInputStream2.readAllBytes();
+        String stringFromChapter10Encode = new String(bytesArrayFromChapter10Encode, "UTF-8");
+        String decode = decodeByFrequencyAnalysis(stringFromChapter10);
+
+        FileOutputStream fileOutputStream2 = new FileOutputStream("resources/Chapter10Decode.txt");
+        BufferedOutputStream bufferedOutputStream2 = new BufferedOutputStream(fileOutputStream2);
+        bufferedOutputStream2.write(decode.getBytes());
+
+        fileInputStream2.close();
+        fileOutputStream2.close();
+
     }
 }
