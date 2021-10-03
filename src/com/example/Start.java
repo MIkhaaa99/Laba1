@@ -2,8 +2,8 @@ package com.example;
 
 import java.io.*;
 import java.util.*;
-                     /////////////Chapters I-X////////////////
-public class Start {
+                     /////////////Первый том////////////////
+    public class Start {
 
     public static final String ALPH = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
 
@@ -12,8 +12,6 @@ public class Start {
     public static Map<String, Integer> mapCountOfSymbol = new LinkedHashMap<>(Map.ofEntries(Map.entry("а", 0), Map.entry("б", 0), Map.entry("в", 0), Map.entry("г", 0), Map.entry("д", 0), Map.entry("е", 0), Map.entry("ё", 0), Map.entry("ж", 0), Map.entry("з", 0), Map.entry("и", 0), Map.entry("й", 0), Map.entry("к", 0), Map.entry("л", 0), Map.entry("м", 0), Map.entry("н", 0), Map.entry("о", 0), Map.entry("п", 0), Map.entry("р", 0), Map.entry("с", 0), Map.entry("т", 0), Map.entry("у", 0), Map.entry("ф", 0), Map.entry("х", 0), Map.entry("ц", 0), Map.entry("ч", 0), Map.entry("ш", 0), Map.entry("щ", 0), Map.entry("ъ", 0), Map.entry("ы", 0), Map.entry("ь", 0), Map.entry("э", 0), Map.entry("ю", 0), Map.entry("я", 0)));
 
     public static  Map<String, String> mapReplacementLetter = new LinkedHashMap<>();
-
-    public static Integer countOfAllSymbols = 0;
 
     static {
         mapFrequencyOfLetters.put("о", 0.10983);
@@ -102,15 +100,17 @@ public class Start {
         return result;
     }
 
-    public static String decodeByFrequencyAnalysis(String message) {
-        for(int i=0; i<message.length(); i++) {
-            if(ALPH.indexOf(message.charAt(i))!=-1) {
-                String symbol = String.valueOf(message.charAt(i));
+    public static String decodeByFrequencyAnalysis(String encodeText, String sourceText) {
+
+        //Составляем карту частотности монограмм
+        for(int i=0; i<encodeText.length(); i++) {
+            if(ALPH.indexOf(encodeText.charAt(i))!=-1) {
+                String symbol = String.valueOf(encodeText.charAt(i));
                 mapCountOfSymbol.put(symbol, mapCountOfSymbol.get(symbol)+1);
-                countOfAllSymbols++;
             }
         }
 
+        //Сортируем эту карту по убыванию
         Map<String, Integer> map = new LinkedHashMap<>();
         mapCountOfSymbol.entrySet().stream()
                             .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
@@ -119,23 +119,80 @@ public class Start {
         mapCountOfSymbol.clear();
         mapCountOfSymbol.putAll(map);
 
-        String[] arrKeysByMapCountOfSymbol = (String[]) map.keySet().toArray(new String[map.size()]);
-        String[] arrKeysByMapFrequencyOfLetters = (String[]) mapFrequencyOfLetters.keySet().toArray(new String[map.size()]);
+        System.out.println("Частотноть букв в зашифрованном тексте");
+        System.out.println(mapCountOfSymbol + "\n");
 
+        //Составляем карту замены монограмм
+        String[] arrKeysByMapCountOfSymbol = (String[]) mapCountOfSymbol.keySet().toArray(new String[map.size()]);
+        String[] arrKeysByMapFrequencyOfLetters = (String[]) mapFrequencyOfLetters.keySet().toArray(new String[map.size()]);
         for(int i=0; i<ALPH.length(); i++) {
             mapReplacementLetter.put(arrKeysByMapCountOfSymbol[i], arrKeysByMapFrequencyOfLetters[i]);
         }
 
+        //Составляем карту биграм исходного текста (отсотрирована по убыванию)
+        Map<String, Integer> bigramMapOfSourceText = new LinkedHashMap<>();
+        bigramMapOfSourceText.putAll(calculateMapOfBigram(sourceText));
+        System.out.println("Количество биграмм в исходном тексте");
+        System.out.println(bigramMapOfSourceText + "\n");
+
+        //Составляем карту биграм зашифрованного текста (отсотрирована по убыванию)
+        Map<String, Integer> bigramMapOfEncodeText = new LinkedHashMap<>();
+        bigramMapOfEncodeText.putAll(calculateMapOfBigram(encodeText));
+        System.out.println("Количество биграмм в зашифрованном тексте");
+        System.out.println(bigramMapOfEncodeText + "\n");
+
+        //Подправляем карту монограмм при помощи карты биграмм
+        String[] bigramArray1 = (String[]) bigramMapOfEncodeText.keySet().toArray(new String[map.size()]);
+        String[] bigramArray2 = (String[]) bigramMapOfSourceText.keySet().toArray(new String[map.size()]);
+        for(int i=9; i>=0; i--) {
+            mapReplacementLetter.put(String.valueOf(bigramArray1[i].charAt(0)), String.valueOf(bigramArray2[i].charAt(0)));
+            mapReplacementLetter.put(String.valueOf(bigramArray1[i].charAt(1)), String.valueOf(bigramArray2[i].charAt(1)));
+        }
+        System.out.println("Карта замены символов");
+        System.out.println(mapReplacementLetter + "\n");
+
+        //Расшифровываем текст при помощи карты монограмм
         String result = "";
-        for(int i=0; i<message.length(); i++) {
-            if(ALPH.indexOf(message.charAt(i))==-1) {
-                result = result + message.charAt(i);
+        for(int i=0; i<encodeText.length(); i++) {
+            if(ALPH.indexOf(encodeText.charAt(i))==-1) {
+                result = result + encodeText.charAt(i);
             }
             else {
-                result = result + mapReplacementLetter.get(String.valueOf(message.charAt(i)));
+                result = result + mapReplacementLetter.get(String.valueOf(encodeText.charAt(i)));
             }
         }
         return result;
+    }
+
+    private static Map<String, Integer> calculateMapOfBigram(String message) {
+        Map<String, Integer> integerMap = new LinkedHashMap<>();
+        for(int i=0; i<message.length()-1; i++) {
+            if(ALPH.indexOf(message.charAt(i))!=-1 && ALPH.indexOf(message.charAt(i+1))!=-1) {
+                String key = String.valueOf(message.charAt(i)) + String.valueOf(message.charAt(i + 1));
+                if(!integerMap.containsKey(key)) {
+                    integerMap.put(key, 1);
+                }
+                else {
+                    integerMap.put(key, integerMap.get(key)+1);
+                }
+            }
+        }
+
+        //Сортируем мапу по убыванию
+        Map<String, Integer> map = new LinkedHashMap<>();
+        map.putAll(sortMapDescending(integerMap));
+        integerMap.clear();
+        integerMap.putAll(map);
+        return integerMap;
+    }
+
+    public static Map<String, Integer> sortMapDescending(Map<String, Integer> sourceMap) {
+        Map<String, Integer> sortedMap = new LinkedHashMap<>();
+        sourceMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .forEach(entry -> sortedMap.put(entry.getKey(), entry.getValue()));
+
+        return sortedMap;
     }
 
     public static void main(String[] args) throws IOException {
@@ -160,7 +217,7 @@ public class Start {
 
         byte[] bytesArrayFromChapter10Encode = bufferedInputStream2.readAllBytes();
         String stringFromChapter10Encode = new String(bytesArrayFromChapter10Encode, "UTF-8");
-        String decode = decodeByFrequencyAnalysis(stringFromChapter10Encode);
+        String decode = decodeByFrequencyAnalysis(stringFromChapter10Encode, stringFromChapter10);
 
         FileOutputStream fileOutputStream2 = new FileOutputStream("resources/Chapter10Decode.txt");
         BufferedOutputStream bufferedOutputStream2 = new BufferedOutputStream(fileOutputStream2);
@@ -168,10 +225,5 @@ public class Start {
 
         bufferedOutputStream2.close();
         bufferedInputStream2.close();
-
-        System.out.println(mapFrequencyOfLetters);
-        System.out.println(mapCountOfSymbol);
-        System.out.println(countOfAllSymbols);
-        System.out.println(mapReplacementLetter);
     }
 }
